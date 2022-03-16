@@ -16,33 +16,34 @@ def create_heading(elem, level=1):
 
     return Header(*removed_strong.content, level=level)
 
-
-
 def action(elem, doc):
     if isinstance(elem, BlockQuote):
         return [e for e in elem.content if not isinstance(e, Null)]
 
     if isinstance(elem, Para) and stringify(elem).lower().startswith("chapter"):
         doc.requires_chapter_heading = True
-        return create_heading(elem)
-    if isinstance(elem, Para) and doc.requires_chapter_heading:
+        return Null()
+        # return create_heading(elem)
+    if isinstance(elem, Para) and getattr(doc, "requires_chapter_heading", False):
         doc.requires_chapter_heading = False
-        return create_heading(elem, level=2)
+        return Null()
+        # return create_heading(elem, level=2)
 
     if isinstance(elem, Para) and stringify(elem).lower().startswith("article"):
         doc.requires_article_heading = True
-        return create_heading(elem, level=3)
-    if isinstance(elem, Para) and doc.requires_article_heading:
+        return create_heading(elem, level=2)
+    if isinstance(elem, Para) and getattr(doc, "requires_article_heading", False):
         doc.requires_article_heading = False
-        return create_heading(elem, level=4)
+        return create_heading(elem, level=3)
 
     return elem
 
 
 def main(doc=None):
-    return run_filter(action, doc=doc) 
+    return run_filter(action, doc=doc)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="COMMAND")
 
     subparsers = parser.add_subparsers()
